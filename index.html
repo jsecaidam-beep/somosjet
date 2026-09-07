@@ -71,26 +71,23 @@
         </div>
       </section>
 
-      <!-- 🎮 SECCIÓN DE VALORES GAMIFICADA -->
+      <!-- SECCIÓN DE VALORES CON EL MINIJUEGO -->
       <section class="values wrap reveal" id="juego-valores">
         <p class="section-label">03 / LO QUE NOS MUEVE</p>
         
         <div class="values-stage" id="game-wrapper" style="position: relative; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
           
-          <!-- Pantalla de Inicio del Juego -->
           <div id="game-intro" style="text-align: center; z-index: 10;">
             <h2>nuestros<br /><span>valores</span></h2>
             <p style="margin-bottom: 20px; font-family: 'Space Grotesk';">Atrapa los 6 valores y esquiva los obstáculos.</p>
             <button id="btn-start-game" class="button button-dark" style="cursor: pointer;">Jugar Misión JET <span>🎮</span></button>
           </div>
 
-          <!-- Contenedor del Canvas (El juego) -->
           <div id="game-container" style="display: none; position: relative; width: 100%; max-width: 800px; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
             <canvas id="jet-game" width="800" height="400" style="background: #111; width: 100%; display: block; touch-action: none;"></canvas>
             <div style="position: absolute; top: 15px; left: 20px; color: #fff; font-family: 'Space Grotesk'; font-weight: bold; font-size: 1.2rem;">Valores: <span id="game-score">0</span> / 6</div>
           </div>
 
-          <!-- Pantalla de Victoria / Derrota -->
           <div id="game-end" style="display: none; text-align: center; z-index: 10;">
             <h2 id="end-title">¡Misión Cumplida!</h2>
             <p id="end-msg" style="margin-bottom: 20px; font-family: 'Space Grotesk';">Has reunido toda la fuerza de JET.</p>
@@ -107,20 +104,24 @@
 
       <section class="signup" id="sumate">
         <div class="wrap signup-layout reveal"><div><p class="section-label">05 / SÚMATE AL MOVIMIENTO</p><h2>Tu energía<br />también <em>cuenta.</em></h2><p class="signup-note">Recibe convocatorias, talleres, proyectos territoriales y las próximas acciones de JET. Si quieres colaborar, también podemos conocernos desde aquí.</p></div>
-          <form class="form" id="signup-form">
+          <form class="form" id="signup-form" data-sheet-url="https://script.google.com/macros/s/AKfycbzmk5-RpmLBbQYJhwO20eMuGgKk3XioaUntuuP8SlERgY_eRcZ1VnBp007rBEZBqArc/exec">
             <label>Nombre completo<input required name="name" type="text" placeholder="¿Cómo te llamas?" /></label>
             <label>Correo electrónico<input required name="email" type="email" placeholder="tu@correo.com" /></label>
+            <label>Departamento o municipio<input required name="location" type="text" placeholder="¿Desde dónde te sumas?" /></label>
+            <label>¿Cómo quieres sumarte?<select required name="interest"><option value="" disabled selected>Elige una opción</option><option>Quiero ser parte de JET</option><option>Quiero colaborar como organización</option><option>Quiero apoyar como donante</option><option>Quiero conocer más</option></select></label>
+            <label>Cuéntanos un poco más <small>(opcional)</small><textarea name="message" rows="3" placeholder="Tu idea, territorio o iniciativa..."></textarea></label>
+            <label class="consent"><input required name="consent" value="yes" type="checkbox" /> <span>Quiero recibir noticias y convocatorias de JET.</span></label>
             <button class="button button-dark" type="submit">Enviar mi energía <span>→</span></button>
+            <p class="form-status" id="form-status" aria-live="polite"></p>
           </form>
         </div>
       </section>
     </main>
     
-    <footer><div class="wrap footer-inner"><a class="brand footer-brand" href="#inicio"><img src="Logo-JET.svg" alt="Logo Somos JET" /></a><div class="socials"><p>Síguenos y sé parte</p><div><a class="social-link ig" href="https://www.instagram.com/somosjet.gt/" target="_blank">Instagram <span>↗</span></a></div></div><p class="footer-note">Juventudes en Expansión Territorial<br />Guatemala</p></div></footer>
+    <footer><div class="wrap footer-inner"><a class="brand footer-brand" href="#inicio"><img src="Logo-JET.svg" alt="Logo Somos JET" /></a><div class="socials"><p>Síguenos y sé parte</p><div><a class="social-link fb" href="https://www.facebook.com/Somosjet" target="_blank" rel="noreferrer">Facebook <span>↗</span></a><a class="social-link ig" href="https://www.instagram.com/somosjet.gt/" target="_blank" rel="noreferrer">Instagram <span>↗</span></a></div></div><p class="footer-note">Juventudes en Expansión Territorial<br />Guatemala</p></div></footer>
 
-    <!-- LÓGICA DEL VIDEOJUEGO (Integrada directamente) -->
+    <!-- SCRIPT DEL JUEGO Y FORMULARIO -->
     <script>
-      // SVGs convertidos a imágenes usables por Canvas
       const jetImg = new Image();
       jetImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>';
       
@@ -142,7 +143,6 @@
       let frames = 0;
       let isPlaying = false;
 
-      // Controles (Mouse y Táctil para celulares)
       function moveJet(yPos) {
         const rect = canvas.getBoundingClientRect();
         let scaleY = canvas.height / rect.height;
@@ -187,20 +187,16 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         frames++;
 
-        // Dibujar Jet
         ctx.drawImage(jetImg, jet.x, jet.y, jet.width, jet.height);
 
-        // Generar Valores (Estrellas)
         if (frames % 120 === 0 && score + items.length < 6) {
           items.push({ x: canvas.width, y: Math.random() * (canvas.height - 40), width: 30, height: 30, text: valoresTotales[score + items.length] });
         }
 
-        // Generar Obstáculos (Triángulos)
         if (frames % 90 === 0) {
           obstacles.push({ x: canvas.width, y: Math.random() * (canvas.height - 40), width: 30, height: 30 });
         }
 
-        // Mover y dibujar Valores
         for (let i = 0; i < items.length; i++) {
           let item = items[i];
           item.x -= 3;
@@ -209,7 +205,6 @@
           ctx.font = "14px 'Space Grotesk'";
           ctx.fillText(item.text, item.x - 10, item.y - 10);
 
-          // Colisión Jet -> Valor
           if (jet.x < item.x + item.width && jet.x + jet.width > item.x && jet.y < item.y + item.height && jet.height + jet.y > item.y) {
             items.splice(i, 1);
             score++;
@@ -218,13 +213,11 @@
           }
         }
 
-        // Mover y dibujar Obstáculos
         for (let i = 0; i < obstacles.length; i++) {
           let obs = obstacles[i];
-          obs.x -= 4; // Los obstáculos van más rápido
+          obs.x -= 4;
           ctx.drawImage(obsImg, obs.x, obs.y, obs.width, obs.height);
 
-          // Colisión Jet -> Obstáculo
           if (jet.x + 10 < obs.x + obs.width && jet.x + jet.width - 10 > obs.x && jet.y + 10 < obs.y + obs.height && jet.height + jet.y - 10 > obs.y) {
             return endGame(false);
           }
