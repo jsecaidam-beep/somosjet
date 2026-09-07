@@ -7,15 +7,19 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+
       gtag('config', 'G-NBPGBDBKK5');
     </script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- 🚀 SEO ON-PAGE: Título y descripción optimizados para búsquedas de "Somos JET" y "JET" -->
     <title>Somos JET — Juventudes en Expansión Territorial | Guatemala</title>
     <meta name="description" content="Somos JET (Juventudes en Expansión Territorial), una red nacional hecha por y para jóvenes en Guatemala. Únete a nuestro movimiento juvenil." />
-    <meta name="keywords" content="Somos JET, JET, JET Guatemala, Juventudes en Expansión Territorial, red juvenil guatemala" />
-    
+    <meta name="keywords" content="Somos JET, JET, JET Guatemala, Juventudes en Expansión Territorial, red juvenil guatemala, jóvenes guatemala" />
+
+    <!-- 🚀 SEO SOCIAL (Open Graph): Para que se vea profesional al compartir en WhatsApp o Redes Sociales -->
     <meta property="og:title" content="Somos JET — Juventudes en Expansión Territorial" />
     <meta property="og:description" content="Red nacional hecha por y para jóvenes en Guatemala. Las juventudes nos movemos." />
     <meta property="og:url" content="https://www.somosjet.me" />
@@ -34,6 +38,7 @@
     <main>
       <section class="hero" id="inicio">
         <nav class="nav wrap" aria-label="Principal">
+          <!-- 🚀 SEO: Alt text mejorado para que Google asocie el logo con las palabras clave -->
           <a class="brand" href="#inicio" aria-label="Somos JET, inicio"><img src="Logo-JET.svg" alt="Logo de Somos JET - Juventudes en Expansión Territorial" /></a>
           <div class="nav-links"><a href="#somos">Somos JET</a><a href="#impacto">Nuestro movimiento</a></div>
           <a class="nav-cta" href="#sumate">Súmate <span>↘</span></a>
@@ -43,7 +48,7 @@
             <p class="eyebrow">Guatemala · red nacional de juventudes</p>
             <h1 class="hero-title"><span>LAS JUVENTUDES</span><br /><em>nos movemos.</em></h1>
             <p class="lead">Somos una red que pone las ideas, el liderazgo y la energía joven en el centro de los territorios.</p>
-            <div class="hero-actions"><a class="button button-dark" href="#somos">Conoce JET <span>→</span></a><a class="text-link" href="#sumate">Quiero colaborar</a></div>
+            <div class="hero-actions"><a class="button button-dark" href="#somos"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/></svg>Conoce JET <span>→</span></a><a class="text-link" href="#sumate">Quiero colaborar</a></div>
           </div>
           <div class="hero-art" aria-hidden="true">
             <span class="sun"></span><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><span class="shape-cube"></span><span class="shape-ring"></span>
@@ -71,30 +76,12 @@
         </div>
       </section>
 
-      <!-- SECCIÓN DE VALORES CON EL MINIJUEGO -->
-      <section class="values wrap reveal" id="juego-valores">
+      <section class="values wrap reveal">
         <p class="section-label">03 / LO QUE NOS MUEVE</p>
-        
-        <div class="values-stage" id="game-wrapper" style="position: relative; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-          
-          <div id="game-intro" style="text-align: center; z-index: 10;">
-            <h2>nuestros<br /><span>valores</span></h2>
-            <p style="margin-bottom: 20px; font-family: 'Space Grotesk';">Atrapa los 6 valores y esquiva los obstáculos.</p>
-            <button id="btn-start-game" class="button button-dark" style="cursor: pointer;">Jugar Misión JET <span>🎮</span></button>
-          </div>
-
-          <div id="game-container" style="display: none; position: relative; width: 100%; max-width: 800px; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-            <canvas id="jet-game" width="800" height="400" style="background: #111; width: 100%; display: block; touch-action: none;"></canvas>
-            <div style="position: absolute; top: 15px; left: 20px; color: #fff; font-family: 'Space Grotesk'; font-weight: bold; font-size: 1.2rem;">Valores: <span id="game-score">0</span> / 6</div>
-          </div>
-
-          <div id="game-end" style="display: none; text-align: center; z-index: 10;">
-            <h2 id="end-title">¡Misión Cumplida!</h2>
-            <p id="end-msg" style="margin-bottom: 20px; font-family: 'Space Grotesk';">Has reunido toda la fuerza de JET.</p>
-            <div class="values-collected" id="collected-list" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;"></div>
-            <button id="btn-restart" class="button button-dark">Jugar de nuevo <span>↺</span></button>
-          </div>
-
+        <div class="values-stage">
+          <svg class="values-network" aria-hidden="true"><g></g></svg>
+          <h2>nuestros<br /><span>valores</span></h2>
+          <span class="value v1 draggable-value" tabindex="0">EMPATÍA</span><span class="value v2 draggable-value" tabindex="0">PARTICIPACIÓN</span><span class="value v3 draggable-value" tabindex="0">TERRITORIO<br />Y REALIDAD</span><span class="value v4 draggable-value" tabindex="0">CREATIVIDAD</span><span class="value v5 draggable-value" tabindex="0">INCLUSIÓN</span><span class="value v6 draggable-value" tabindex="0">AUTONOMÍA<br />JUVENIL</span>
         </div>
       </section>
 
@@ -103,7 +90,7 @@
       </section>
 
       <section class="signup" id="sumate">
-        <div class="wrap signup-layout reveal"><div><p class="section-label">05 / SÚMATE AL MOVIMIENTO</p><h2>Tu energía<br />también <em>cuenta.</em></h2><p class="signup-note">Recibe convocatorias, talleres, proyectos territoriales y las próximas acciones de JET. Si quieres colaborar, también podemos conocernos desde aquí.</p></div>
+        <div class="wrap signup-layout reveal"><div><p class="section-label">05 / SÚMATE AL MOVIMIENTO</p><h2>Tu energía<br />también <em>cuenta.</em></h2><p class="signup-note">Recibe convocatorias, talleres, proyectos territoriales y las próximas acciones de JET. Si quieres colaborar, también podemos conocernos desde aquí.</p><p class="signup-sticker">TU VOZ TIENE LUGAR</p></div>
           <form class="form" id="signup-form" data-sheet-url="https://script.google.com/macros/s/AKfycbzmk5-RpmLBbQYJhwO20eMuGgKk3XioaUntuuP8SlERgY_eRcZ1VnBp007rBEZBqArc/exec">
             <label>Nombre completo<input required name="name" type="text" placeholder="¿Cómo te llamas?" /></label>
             <label>Correo electrónico<input required name="email" type="email" placeholder="tu@correo.com" /></label>
@@ -117,118 +104,7 @@
         </div>
       </section>
     </main>
-    
-    <footer><div class="wrap footer-inner"><a class="brand footer-brand" href="#inicio"><img src="Logo-JET.svg" alt="Logo Somos JET" /></a><div class="socials"><p>Síguenos y sé parte</p><div><a class="social-link fb" href="https://www.facebook.com/Somosjet" target="_blank" rel="noreferrer">Facebook <span>↗</span></a><a class="social-link ig" href="https://www.instagram.com/somosjet.gt/" target="_blank" rel="noreferrer">Instagram <span>↗</span></a></div></div><p class="footer-note">Juventudes en Expansión Territorial<br />Guatemala</p></div></footer>
-
-    <!-- SCRIPT DEL JUEGO Y FORMULARIO -->
-    <script>
-      const jetImg = new Image();
-      jetImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>';
-      
-      const starImg = new Image();
-      starImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffd700"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
-
-      const obsImg = new Image();
-      obsImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff4d4d"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>';
-
-      const canvas = document.getElementById('jet-game');
-      const ctx = canvas.getContext('2d');
-      const valoresTotales = ["EMPATÍA", "PARTICIPACIÓN", "TERRITORIO", "CREATIVIDAD", "INCLUSIÓN", "AUTONOMÍA"];
-      
-      let gameLoopId;
-      let jet = { x: 50, y: 200, width: 40, height: 40 };
-      let items = [];
-      let obstacles = [];
-      let score = 0;
-      let frames = 0;
-      let isPlaying = false;
-
-      function moveJet(yPos) {
-        const rect = canvas.getBoundingClientRect();
-        let scaleY = canvas.height / rect.height;
-        jet.y = (yPos - rect.top) * scaleY - jet.height / 2;
-        if(jet.y < 0) jet.y = 0;
-        if(jet.y > canvas.height - jet.height) jet.y = canvas.height - jet.height;
-      }
-      canvas.addEventListener('mousemove', (e) => isPlaying && moveJet(e.clientY));
-      canvas.addEventListener('touchmove', (e) => {
-        if(isPlaying) { e.preventDefault(); moveJet(e.touches[0].clientY); }
-      }, { passive: false });
-
-      function startGame() {
-        document.getElementById('game-intro').style.display = 'none';
-        document.getElementById('game-end').style.display = 'none';
-        document.getElementById('game-container').style.display = 'block';
-        
-        score = 0; frames = 0; items = []; obstacles = [];
-        jet.y = canvas.height / 2;
-        document.getElementById('game-score').innerText = score;
-        isPlaying = true;
-        gameLoop();
-      }
-
-      function endGame(win) {
-        isPlaying = false;
-        cancelAnimationFrame(gameLoopId);
-        document.getElementById('game-container').style.display = 'none';
-        document.getElementById('game-end').style.display = 'block';
-        document.getElementById('end-title').innerText = win ? "¡Misión Cumplida!" : "¡Cuidado con los obstáculos!";
-        document.getElementById('end-msg').innerText = win ? "Has reunido la fuerza de JET." : "Vuelve a intentarlo para unir la red.";
-        
-        let listHtml = '';
-        for(let i=0; i<score; i++) {
-          listHtml += `<span style="background:#f4f4f4; color:#111; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.9rem;">${valoresTotales[i]}</span>`;
-        }
-        document.getElementById('collected-list').innerHTML = listHtml;
-      }
-
-      function gameLoop() {
-        if(!isPlaying) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        frames++;
-
-        ctx.drawImage(jetImg, jet.x, jet.y, jet.width, jet.height);
-
-        if (frames % 120 === 0 && score + items.length < 6) {
-          items.push({ x: canvas.width, y: Math.random() * (canvas.height - 40), width: 30, height: 30, text: valoresTotales[score + items.length] });
-        }
-
-        if (frames % 90 === 0) {
-          obstacles.push({ x: canvas.width, y: Math.random() * (canvas.height - 40), width: 30, height: 30 });
-        }
-
-        for (let i = 0; i < items.length; i++) {
-          let item = items[i];
-          item.x -= 3;
-          ctx.drawImage(starImg, item.x, item.y, item.width, item.height);
-          ctx.fillStyle = "white";
-          ctx.font = "14px 'Space Grotesk'";
-          ctx.fillText(item.text, item.x - 10, item.y - 10);
-
-          if (jet.x < item.x + item.width && jet.x + jet.width > item.x && jet.y < item.y + item.height && jet.height + jet.y > item.y) {
-            items.splice(i, 1);
-            score++;
-            document.getElementById('game-score').innerText = score;
-            if(score >= 6) return endGame(true);
-          }
-        }
-
-        for (let i = 0; i < obstacles.length; i++) {
-          let obs = obstacles[i];
-          obs.x -= 4;
-          ctx.drawImage(obsImg, obs.x, obs.y, obs.width, obs.height);
-
-          if (jet.x + 10 < obs.x + obs.width && jet.x + jet.width - 10 > obs.x && jet.y + 10 < obs.y + obs.height && jet.height + jet.y - 10 > obs.y) {
-            return endGame(false);
-          }
-        }
-
-        gameLoopId = requestAnimationFrame(gameLoop);
-      }
-
-      document.getElementById('btn-start-game').addEventListener('click', startGame);
-      document.getElementById('btn-restart').addEventListener('click', startGame);
-    </script>
+    <footer><div class="footer-orbit" aria-hidden="true"></div><div class="wrap footer-inner"><a class="brand footer-brand" href="#inicio"><img src="Logo-JET.svg" alt="Logo Somos JET" /></a><div class="socials"><p>Síguenos y sé parte</p><div><a class="social-link fb" href="https://www.facebook.com/Somosjet" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4.5c-.5-.1-2-.2-3.8-.2-3.7 0-6.2 2.2-6.2 6.3V14H3v4h4v7h4.9v-7h4.1l.7-4h-4.8v-2.8c0-1.2.3-2 2.1-2Z"/></svg>Facebook <span>↗</span></a><a class="social-link ig" href="https://www.instagram.com/somosjet.gt/" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.7" r="1"/></svg>Instagram <span>↗</span></a></div></div><p class="footer-note">Juventudes en Expansión Territorial<br />Guatemala</p></div></footer>
     <script src="script.js"></script>
   </body>
 </html>
