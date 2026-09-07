@@ -14,12 +14,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- 🚀 SEO ON-PAGE: Título y descripción optimizados para búsquedas de "Somos JET" y "JET" -->
+    <!-- 🚀 SEO ON-PAGE: Título y descripción optimizados -->
     <title>Somos JET — Juventudes en Expansión Territorial | Guatemala</title>
     <meta name="description" content="Somos JET (Juventudes en Expansión Territorial), una red nacional hecha por y para jóvenes en Guatemala. Únete a nuestro movimiento juvenil." />
     <meta name="keywords" content="Somos JET, JET, JET Guatemala, Juventudes en Expansión Territorial, red juvenil guatemala, jóvenes guatemala" />
 
-    <!-- 🚀 SEO SOCIAL (Open Graph): Para que se vea profesional al compartir en WhatsApp o Redes Sociales -->
+    <!-- 🚀 SEO SOCIAL (Open Graph) -->
     <meta property="og:title" content="Somos JET — Juventudes en Expansión Territorial" />
     <meta property="og:description" content="Red nacional hecha por y para jóvenes en Guatemala. Las juventudes nos movemos." />
     <meta property="og:url" content="https://www.somosjet.me" />
@@ -33,8 +33,55 @@
     <link rel="stylesheet" href="motion.css" />
     <link rel="stylesheet" href="refinements.css" />
     <link rel="stylesheet" href="values-network.css" />
+
+    <!-- Estilo personalizado para el selector de idiomas flotante acorde a tu diseño -->
+    <style>
+      .language-selector {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        background: #111;
+        border: 2px solid #fff;
+        border-radius: 30px;
+        padding: 6px 12px;
+        display: flex;
+        gap: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        font-family: 'Space Grotesk', sans-serif;
+      }
+      .language-selector button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 15px;
+        transition: all 0.2s ease;
+      }
+      .language-selector button:hover, .language-selector button.active {
+        background: #ffcc00;
+        color: #000;
+      }
+      /* Ocultar elementos automáticos molestos de Google Translate si aparecen */
+      .goog-te-banner-frame, .goog-te-gadget span { display: none !important; }
+      body { top: 0 !important; }
+    </style>
   </head>
   <body>
+    <!-- 🌐 SELECTOR DE IDIOMAS FLOTANTE -->
+    <div class="language-selector" aria-label="Selector de idiomas">
+      <button onclick="changeLanguage('es')" class="active" id="lang-es">ES</button>
+      <button onclick="changeLanguage('en')" id="lang-en">EN</button>
+      <button onclick="changeLanguage('pt')" id="lang-pt">PT</button>
+      <button onclick="changeLanguage('fr')" id="lang-fr">FR</button>
+    </div>
+
+    <!-- Contenedor oculto requerido para la inicialización de Google Translate -->
+    <div id="google_translate_element" style="display:none;"></div>
+
     <main>
       <!-- SECCIÓN: HERO -->
       <section class="hero" id="inicio">
@@ -111,7 +158,7 @@
         </div>
       </section>
 
-      <!-- SECCIÓN: VALORES (Estructura limpia para evitar amontonamientos visuales) -->
+      <!-- SECCIÓN: VALORES -->
       <section class="values wrap reveal">
         <p class="section-label">03 / LO QUE NOS MUEVE</p>
         <div class="values-stage">
@@ -199,5 +246,28 @@
     </footer>
 
     <script src="script.js"></script>
+
+    <!-- Script de inicialización y control de idiomas -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'es',
+          includedLanguages: 'es,en,pt,fr',
+          autoDisplay: false
+        }, 'google_translate_element');
+      }
+
+      function changeLanguage(lang) {
+        var selectField = document.querySelector("select.goog-te-combo");
+        if (selectField) {
+          selectField.value = lang;
+          selectField.dispatchEvent(new Event('change'));
+        }
+        // Actualizar botones activos visualmente
+        document.querySelectorAll('.language-selector button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('lang-' + lang).classList.add('active');
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   </body>
 </html>
