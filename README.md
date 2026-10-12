@@ -1,21 +1,36 @@
-# JET — Landing web
+# Somos JET
 
-Landing estática preparada para publicar con GitHub Pages.
+Sitio oficial de Juventudes en Expansión Territorial, Guatemala.
 
-## Publicar
+Publicado en https://somosjet.me mediante GitHub Pages desde la raíz de `main`.
 
-1. Sube estos archivos a un repositorio de GitHub.
-2. En **Settings → Pages**, elige desplegar desde la rama principal y la carpeta raíz.
-3. Configura `somosjet.me` como dominio personalizado. El archivo `CNAME` ya está incluido.
-4. En el proveedor DNS de `somosjet.me`, apunta el dominio a GitHub Pages según las instrucciones que GitHub mostrará al activar Pages.
+## Estructura
 
-## Newsletter y Google Sheets
+- `index.html`: secciones, metadatos y catálogo público de publicaciones.
+- `styles.css`, `motion.css`, `posts.css`, `form.css`: diseño, movimiento, galería y formulario.
+- `app.js`: menú, entradas y escena de Liquid Glass.
+- `posts.js`: filtros y navegación de los ocho carruseles (66 imágenes) y el reel.
+- `form.js`: envío al receptor vigente de Google Apps Script, con respuesta en nueva pestaña.
+- `assets/`: fuentes, logo, valores vectoriales, biblioteca LiquidGlass y fotografías.
+- `google-apps-script.js`: referencia del receptor existente; no se despliega mediante Pages.
 
-El formulario está preparado para enviar nombre, correo, municipio/departamento, interés, mensaje y consentimiento a un Web App de Google Apps Script. El HTML de referencia de Gemini no incluía esta integración: solo mostraba una alerta.
+## Vista local
 
-1. Crea una hoja de Google Sheets con estas columnas: Fecha, Nombre, Correo, Municipio, Interés, Mensaje y Consentimiento.
-2. Abre **Extensiones → Apps Script**, reemplaza el contenido por [google-apps-script.js](google-apps-script.js) y guarda.
-3. En **Implementar → Nueva implementación**, selecciona **Aplicación web** y da acceso a **Cualquier persona**.
-4. Copia la URL publicada (empieza con `https://script.google.com/macros/s/...`) y pégala en `data-sheet-url` del formulario dentro de `index.html`.
+Ejecutar `python3 -m http.server 8765` desde esta carpeta y abrir http://127.0.0.1:8765.
 
-No uses el botón ▶︎ para probar `doPost`: esa ejecución no contiene datos del formulario. En su lugar, después de desplegar, abre la URL del Web App en el navegador para comprobar que responde correctamente. Sin esa URL publicada, un sitio en GitHub Pages no puede escribir en la hoja de forma segura.
+## Formulario
+
+Se conservaron los campos, cuatro intereses y consentimiento. El POST nativo abre
+la respuesta real del receptor y mantiene los datos en pantalla. No se interpreta
+un fetch opaco como prueba de que se guardó el registro.
+
+## Diseño y fuentes
+
+Tres familias locales: DM Sans, Space Grotesk y Modak. Liquid Glass usa
+`@ybouane/liquidglass` 1.0.3 (MIT); su importación sólo afecta a la escena de portada.
+La preferencia de movimiento reducido desactiva las animaciones y usa vidrio CSS.
+Los carteles de valores conservan las letras trazadas de la identidad gráfica de JET.
+Las imágenes de publicaciones tienen enlaces a sus fuentes y créditos en el catálogo.
+
+No hace falta publicar el HTML portátil de la propuesta: en producción los recursos
+se cargan por separado y las imágenes de la galería se cargan según se necesitan.
