@@ -1,36 +1,129 @@
 /**
- * Newsletter JET - Google Apps Script
- * Vincúlalo con la hoja de Google Sheets y despliega como Aplicación web.
+ * JET v2 — confirmed signup and anonymous department totals.
+ * Bound to Suscriptores Newsletter / Sheet1. Preserve existing columns A:D.
+ * GET is read-only; never return names, emails, messages or exact locations.
  */
+var JET_PROTOCOL = 'jet-v2';
+var JET_DEPARTMENTS = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progreso','Escuintla','Guatemala','Huehuetenango','Izabal','Jalapa','Jutiapa','Petén','Quetzaltenango','Quiché','Retalhuleu','Sacatepéquez','San Marcos','Santa Rosa','Sololá','Suchitepéquez','Totonicapán','Zacapa'];
+var JET_INTERESTS = {
+  'Quiero ser parte de JET':'member',
+  'Quiero colaborar como organización':'organization',
+  'Quiero apoyar como donante':'donor',
+  'Quiero conocer más':'info'
+};
+
 function doPost(e) {
+  var p = (e && e.parameter) || {};
+  var requestId = jetString_(p.requestId, 80);
+  var modern = !!requestId;
   var lock = LockService.getScriptLock();
-  lock.tryLock(10000);
-
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["Fecha", "Nombre", "Correo", "Ubicación", "Interés", "Mensaje", "Consentimiento"]);
-    }
-
-    var timestamp = new Date();
-    var name = e.parameter.name || '';
-    var email = e.parameter.email || '';
-    var location = e.parameter.location || '';
-    var interest = e.parameter.interest || '';
-    var message = e.parameter.message || '';
-    var consent = e.parameter.consent ? 'Sí' : 'No';
-
-    sheet.appendRow([timestamp, name, email, location, interest, message, consent]);
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ result: 'success' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    if (modern && !jetValidId_(requestId)) throw new Error('invalid');
+    if (!modern) requestId = Utilities.getUuid();
+    var name = jetString_(p.name, 150);
+    var email = jetString_(p.email, 254);
+    var location = jetString_(p.location, 180);
+    var department = jetDepartment_(p.department || location);
+    var interest = jetString_(p.interest, 100);
+    if (p.website || !name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !JET_INTERESTS[interest] || p.consent !== 'yes' || (modern && !department)) throw new Error('invalid');
+    lock.waitLock(10000);
+    var sheet = jetSheet_();
+    var existing = jetFindRequest_(sheet, requestId);
+    if (existing) return jetJson_(jetReceipt_(sheet, existing, requestId));
+    jetHeaders_(sheet);
+    var locationText = department && location && location !== department ? department + ' · ' + location : department || location;
+    sheet.appendRow([new Date(),jetCell_(name),jetCell_(email),jetCell_(locationText),jetCell_(interest),jetCell_(jetString_(p.message,3000)),'Sí',requestId,department]);
+    SpreadsheetApp.flush();
+    return jetJson_(jetReceipt_(sheet, sheet.getLastRow(), requestId));
   } catch (error) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ result: 'error', error: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    var message = error.message === 'invalid' ? 'Revisa tus datos y selecciona tu departamento.' : 'No pudimos guardar tu registro. Inténtalo nuevamente.';
+    if (jetValidId_(requestId)) CacheService.getScriptCache().put('jet-error-' + requestId, message, 120);
+    return jetJson_({protocol:JET_PROTOCOL,result:'error',requestId:requestId,message:message});
   } finally {
-    lock.releaseLock();
+    if (lock.hasLock()) lock.releaseLock();
   }
 }
+
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  var result;
+  try {
+    var sheet = jetSheet_();
+    if (p.action === 'status') {
+      var id = jetString_(p.requestId,80);
+      if (!jetValidId_(id)) throw new Error('invalid');
+      var row = jetFindRequest_(sheet,id);
+      var error = row ? null : CacheService.getScriptCache().get('jet-error-' + id);
+      result = row ? jetReceipt_(sheet,row,id) : {protocol:JET_PROTOCOL,result:error ? 'error' : 'pending',requestId:id,message:error || ''};
+    } else if (p.action === 'territories' || !p.action) {
+      result = {protocol:JET_PROTOCOL,result:'success',stats:jetStats_(sheet)};
+    } else {
+      throw new Error('invalid');
+    }
+  } catch (error) {
+    result = {protocol:JET_PROTOCOL,result:'error',message:'No pudimos consultar la confirmación. Vuelve a intentarlo.'};
+  }
+  var callback = jetString_(p.callback,100);
+  if (/^jet_[A-Za-z0-9_]{1,80}$/.test(callback)) {
+    return ContentService.createTextOutput(callback + '(' + JSON.stringify(result) + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return jetJson_(result);
+}
+
+function jetSheet_() {
+  var workbook = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = workbook && workbook.getSheetByName('Sheet1');
+  if (!sheet) throw new Error('sheet');
+  return sheet;
+}
+function jetHeaders_(sheet) {
+  var headers = ['Fecha','Nombre completo','Correo electrónico','Ubicación','Interés','Mensaje','Consentimiento','ID de registro','Departamento'];
+  if (!sheet.getLastRow()) sheet.appendRow(headers);
+  else {
+    var cells = sheet.getRange(1,5,1,5).getValues()[0];
+    for (var i=0;i<cells.length;i++) if (!cells[i]) sheet.getRange(1,i+5).setValue(headers[i+4]);
+  }
+}
+function jetFindRequest_(sheet,id) {
+  var count = sheet.getLastRow()-1;
+  if (count < 1) return null;
+  var cell = sheet.getRange(2,8,count,1).createTextFinder(id).matchEntireCell(true).findNext();
+  return cell ? cell.getRow() : null;
+}
+function jetReceipt_(sheet,row,id) {
+  return {protocol:JET_PROTOCOL,result:'success',requestId:id,department:jetDepartment_(sheet.getRange(row,9).getValue()),interest:JET_INTERESTS[sheet.getRange(row,5).getValue()] || 'info',stats:jetStats_(sheet)};
+}
+function jetStats_(sheet) {
+  var count = sheet.getLastRow()-1;
+  var departments = {};
+  if (count > 0) {
+    var locations = sheet.getRange(2,4,count,2).getValues();
+    var canonical = sheet.getRange(2,9,count,1).getValues();
+    for (var i=0;i<count;i++) {
+      var department = jetDepartment_(canonical[i][0] || locations[i][0]);
+      if (!department) continue;
+      var interest = JET_INTERESTS[locations[i][1]] || 'info';
+      if (!departments[department]) departments[department] = {department:department,total:0,interests:{member:0,organization:0,donor:0,info:0}};
+      departments[department].total++;
+      departments[department].interests[interest]++;
+    }
+  }
+  var territories = Object.keys(departments).sort().map(function(name){return departments[name];});
+  return {mode:'live',territories:territories,total:territories.reduce(function(sum,t){return sum+t.total;},0)};
+}
+function jetDepartment_(value) {
+  var text = jetString_(value,180).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z\s]/g,' ').replace(/\s+/g,' ').trim();
+  if (text === 'antigua' || text === 'antigua guatemala') return 'Sacatepéquez';
+  if (text === 'xelaju' || text === 'xela') return 'Quetzaltenango';
+  if (text === 'masagua' || text === 'palin') return 'Escuintla';
+  for (var i=0;i<JET_DEPARTMENTS.length;i++) {
+    var name = JET_DEPARTMENTS[i];
+    var plain = name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    if (text === plain || (' '+text+' ').indexOf(' '+plain+' ') !== -1) return name;
+  }
+  return '';
+}
+function jetString_(value,max) {return String(value || '').trim().slice(0,max);}
+function jetValidId_(id) {return /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(id);}
+function jetCell_(value) {return /^[=+\-@]/.test(value) ? "'"+value : value;}
+function jetJson_(value) {return ContentService.createTextOutput(JSON.stringify(value)).setMimeType(ContentService.MimeType.JSON);}

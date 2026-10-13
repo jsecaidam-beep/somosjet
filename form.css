@@ -45,3 +45,36 @@
 @media(max-width:500px){.jet-form{padding:24px 20px;border-radius:27px}.jet-form:before{border-radius:21px}.jet-fields{grid-template-columns:1fr;gap:16px}.jet-form h3{font-size:30px}.jet-choice>span{min-height:73px;padding:11px;font-size:11px;gap:7px}.jet-choice .jet-choice-check{display:none}.jet-field{font-size:12px}.jet-field input,.jet-field textarea{font-size:16px}.jet-consent{font-size:12px}.jet-form .pill{font-size:7px}.jet-form .form-note{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.jet-form .form-spark{animation:none}.jet-choice>span,.jet-field input,.jet-field textarea{transition:none}}
 .jet-field,.jet-interest legend{font-size:12px}.jet-choice>span{font-size:12px}.jet-consent{font-size:12px}
+
+/* A confirmed receipt stays in the landing page. */
+#signup-fields[hidden],#form-success[hidden]{display:none!important}
+.jet-form.is-submitting{cursor:progress}
+.jet-form.is-submitting input,.jet-form.is-submitting select,.jet-form.is-submitting textarea{opacity:.75;cursor:progress}
+.jet-form-status.is-error{background:#fff3f7e8;border-color:#f500644a;color:#621333}
+.jet-field select{display:block;width:100%;min-width:0;height:49px;border:1px solid #ffffffec;border-radius:13px;padding:12px 36px 12px 14px;background:#ffffffb5;box-shadow:inset 0 1px 0 #fff,0 3px 12px #40388d08;color:var(--ink);font:400 14px/1.4 'DM Sans',sans-serif;outline-offset:3px}
+.jet-field select:focus-visible{outline:2px solid var(--purple);background:#fffffff0;box-shadow:0 0 0 5px #40388d0c}
+.jet-honeypot{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;pointer-events:none}
+#form-success{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:430px;padding:35px 12px;gap:20px;animation:jet-success-arrive .6s ease both;outline-offset:10px}
+#form-success:focus{outline:none}
+#form-success h3,#form-success h4{font-family:'Space Grotesk',sans-serif;font-size:clamp(31px,3.2vw,44px);line-height:1.05;letter-spacing:-.055em;max-width:400px;margin:0;position:relative;z-index:1}
+#form-success p{max-width:360px;font-size:14px;line-height:1.65;margin:0;color:#48404f;position:relative;z-index:1}
+.signup-success-icon{position:relative;display:grid;place-items:center;width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#fff,#ffc21888);border:1px solid #fff;box-shadow:inset 0 2px 2px #fff,0 12px 40px #40388d20;color:var(--purple)}
+.signup-success-icon .jet-icon{width:56px;height:56px;stroke-width:1.4}
+#signup-again{position:relative;z-index:1;font-size:13px;min-height:50px;margin-top:8px;border:1px solid #fff;background:#ffffff8a;color:var(--ink)}
+#signup-again:hover{background:#fff}
+#signup-celebration{position:absolute;inset:-20px;pointer-events:none;overflow:visible;z-index:0}
+.signup-glint{position:absolute;left:var(--glint-x);top:var(--glint-y);width:var(--glint-size);height:var(--glint-size);opacity:0;color:#f50064;filter:drop-shadow(0 0 8px #ffffff);animation:jet-confirmation-glint 1.8s var(--glint-delay) ease-out both}
+.signup-glint:nth-child(3n){color:#40388d}
+.signup-glint:nth-child(3n+1){color:#fff;filter:drop-shadow(0 0 7px #ffc218)}
+@keyframes jet-success-arrive{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes jet-confirmation-glint{0%{opacity:0;transform:translateY(18px) rotate(0deg) scale(.2)}22%{opacity:1;transform:translateY(0) rotate(var(--glint-turn)) scale(1.2)}70%{opacity:.9}100%{opacity:0;transform:translateY(-75px) rotate(var(--glint-turn)) scale(.45)}}
+@media(max-width:500px){.jet-field select{font-size:16px}#form-success{min-height:410px;padding:28px 0}#form-success h3,#form-success h4{font-size:34px}#form-success p{font-size:14px}.signup-success-icon{width:92px;height:92px}.signup-success-icon .jet-icon{width:46px;height:46px}}
+@media(prefers-reduced-motion:reduce){#form-success,.signup-glint{animation:none!important}.signup-glint{display:none}}
+
+/* Department selection uses the same glass surface as the text fields. */
+.jet-field select{display:block;width:100%;min-width:0;min-height:49px;border:1px solid #ffffffec;border-radius:13px;padding:12px 32px 12px 14px;background:#ffffffb5;color:var(--ink);font:400 14px/1.4 'DM Sans',sans-serif;cursor:pointer}
+.jet-field select:focus-visible{outline:2px solid var(--purple);outline-offset:3px;background:#fffffff0}
+.jet-field select:invalid{color:#65596b}
+.jet-honeypot{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;pointer-events:none}
+#signup-fields[hidden]{display:none}
+@media(max-width:500px){.jet-field select{font-size:16px}}

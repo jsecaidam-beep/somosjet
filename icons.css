@@ -1,0 +1,20 @@
+/* Locally hosted Lucide SVGs avoid platform-dependent emoji rendering. */
+.jet-icon{display:inline-block;width:1em;height:1em;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.125em;overflow:visible;pointer-events:none}
+.jet-icon use{pointer-events:none}
+.glass-orb>span,.note-icon,.form-spark,.small-spark,.jet-choice-icon,.jet-choice-check{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.glass-orb .jet-icon{width:.94em;height:.94em;stroke-width:1.8}
+.note-icon .jet-icon{width:.85em;height:.85em;stroke-width:2.3}
+.ticker i{display:inline-flex;align-items:center;justify-content:center;margin-inline:8px;vertical-align:middle}
+.ticker .jet-icon{width:1.15em;height:1.15em;stroke-width:2.5}
+.small-spark .jet-icon{width:1em;height:1em;stroke-width:1.35}
+.join-star .jet-icon{display:block;width:1em;height:1em;stroke-width:1.2}
+.row-toggle{display:flex;align-items:center;justify-content:center}
+.row-toggle .jet-icon{width:1em;height:1em}
+.jet-choice-icon .jet-icon{width:1em;height:1em;stroke-width:1.9}
+.jet-choice-check .jet-icon{width:1em;height:1em;stroke-width:2.2}
+.jet-submit>.jet-icon{width:1.45em;height:1.45em}
+.post-dialog-close{display:flex;align-items:center;justify-content:center}
+.post-dialog-close .jet-icon{width:.75em;height:.75em}
+.post-carousel-controls button{display:flex;align-items:center;justify-content:center}
+.post-carousel-controls button .jet-icon{width:1em;height:1em}
+.post-facebook .jet-icon,.footer-bottom .jet-icon{margin-left:4px}
