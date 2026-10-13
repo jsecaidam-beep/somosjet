@@ -63,7 +63,7 @@ test('new signup is stored before success and preserves historical columns',() =
   assert.equal(receipt.result,'success');
   assert.equal(receipt.requestId,ID);
   assert.equal(receipt.department,'Petén');
-  assert.equal(receipt.interest,'member');
+  assert.equal('interest' in receipt,false);
   assert.deepEqual(env.rows[0].slice(0,4),HISTORICAL_HEADERS);
   assert.deepEqual(env.rows[0].slice(4),['Interés','Mensaje','Consentimiento','ID de registro','Departamento']);
   assert.equal(env.rows.length,2);
@@ -107,28 +107,23 @@ test('invalid departments, email, consent, IDs and honeypot never create registr
   }
 });
 
-test('territory stats expose only aggregate fields, including historical rows',() => {
+test('public requests expose no participant counts, categories or private data',() => {
   const env=environment([
     HISTORICAL_HEADERS,
     [new Date('2026-01-01'),'PRIVATE historical name','private@example.org','Ciudad de Guatemala'],
-    [new Date('2026-01-02'),'PRIVATE other name','another@example.org','Antigua Guatemala'],
-    [new Date('2026-01-03'),'PRIVATE unlocated name','unknown@example.org','Unknown location']
+    [new Date('2026-01-02'),'PRIVATE other name','another@example.org','Antigua Guatemala']
   ]);
   env.post(valid({name:'PRIVATE current name',email:'current@example.org',location:'PRIVATE exact address',message:'PRIVATE message'}));
   const result=env.get({action:'territories'});
-  assert.equal(result.result,'success');
-  assert.equal(result.stats.mode,'live');
-  assert.equal(result.stats.total,3);
-  assert.deepEqual(result.stats.territories.map(record => record.department).sort(),['Guatemala','Petén','Sacatepéquez']);
-  for(const record of result.stats.territories) {
-    assert.deepEqual(Object.keys(record).sort(),['department','interests','total']);
-    assert.deepEqual(Object.keys(record.interests).sort(),['donor','info','member','organization']);
-    assert.equal(Object.values(record.interests).reduce((sum,count) => sum+count,0),record.total);
+  assert.equal(result.result,'ready');
+  assert.deepEqual(Object.keys(result).sort(),['protocol','result']);
+  const receipt=env.get({action:'status',requestId:ID});
+  assert.deepEqual(Object.keys(receipt).sort(),['department','protocol','requestId','result']);
+  for(const output of [result,receipt,env.get({})]) {
+    const exposed=JSON.stringify(output);
+    for(const privateValue of ['PRIVATE','@example.org','exact address','message','stats','total','interests','member','donor','count']) assert.equal(exposed.includes(privateValue),false);
   }
-  const exposed=JSON.stringify(result);
-  for(const privateValue of ['PRIVATE','@example.org','exact address','message','requestId']) assert.equal(exposed.includes(privateValue),false);
-  const receipt=JSON.stringify(env.get({action:'status',requestId:ID}));
-  for(const privateValue of ['PRIVATE','@example.org','exact address','message']) assert.equal(receipt.includes(privateValue),false);
+  assert.equal(env.get({action:'status',requestId:OTHER_ID}).result,'pending');
 });
 
 test('formula-like names, locations and messages are escaped as spreadsheet text',() => {
@@ -150,14 +145,14 @@ test('legacy POST remains compatible without requestId or a department field',()
   const result=env.post(parameters);
   assert.equal(result.result,'success');
   assert.equal(result.department,'Guatemala');
-  assert.equal(result.interest,'info');
+  assert.equal('interest' in result,false);
   assert.match(result.requestId,/^[a-f0-9-]{36}$/i);
   assert.equal(env.rows.length,2);
   const unrecognized=env.post({...parameters,location:'Municipio sin identificar'});
   assert.equal(unrecognized.result,'success');
   assert.equal(unrecognized.department,'');
   assert.equal(env.rows.length,3);
-  assert.equal(env.get({action:'territories'}).stats.total,1);
+  assert.equal(env.get({action:'territories'}).stats,undefined);
 });
 
 test('department normalization handles accents, city wording and municipality aliases',() => {
@@ -172,7 +167,7 @@ test('JSONP callback is restricted and cannot inject executable suffixes',() => 
   assert.match(allowed.text,/^jet_counts_123\(\{.*\}\);$/);
   const denied=env.rawGet({action:'territories',callback:'jet_cb);alert(1);//'});
   assert.equal(denied.mime,'application/json');
-  assert.equal(JSON.parse(denied.text).result,'success');
+  assert.equal(JSON.parse(denied.text).result,'ready');
   assert.equal(denied.text.includes('alert'),false);
 });
 

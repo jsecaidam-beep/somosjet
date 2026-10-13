@@ -1,24 +1,14 @@
 <section class="territory-card" id="jet-territory" aria-labelledby="territory-title">
-  <div class="territory-heading">
-    <div><p class="territory-kicker">ENERGÍA EN EL TERRITORIO</p><h3 id="territory-title">La red <em>se expande.</em></h3></div>
-    <span class="territory-mode" id="territory-mode">Vista ilustrativa</span>
-  </div>
-  <div class="territory-view-toggle" role="group" aria-label="Datos del mapa">
-    <button type="button" data-territory-mode="demo" aria-pressed="true">Ejemplo</button>
-    <button type="button" data-territory-mode="live" aria-pressed="false" disabled>Registros reales</button>
-  </div>
-  <div class="territory-summary" aria-live="polite" aria-atomic="true"><span><strong id="territory-total">18</strong> participaciones</span><span><strong id="territory-active">5</strong> territorios</span></div>
-  <p class="territory-explanation" id="territory-explanation">Datos de ejemplo, no registros reales. Toca un territorio para explorar.</p>
+  <div class="territory-heading"><p class="territory-kicker">ENERGÍA EN EL TERRITORIO</p><h3 id="territory-title">La red <em>se expande.</em></h3></div>
+  <p class="territory-explanation">Conectamos juventudes y territorios en Guatemala.</p>
   <div class="territory-layout">
-    <div class="territory-map-shell"><svg class="territory-map" id="territory-map" viewBox="0 0 560 540" role="group" aria-label="Mapa interactivo de los 22 departamentos de Guatemala"><title>Expansión territorial de JET en Guatemala</title></svg><p class="territory-map-error" id="territory-map-error" hidden>El mapa no pudo cargar. Puedes explorar los territorios en la lista.</p></div>
+    <div class="territory-map-shell"><svg class="territory-map" id="territory-map" viewBox="0 0 560 540" role="group" aria-label="Mapa interactivo de presencia territorial de JET en Guatemala"><title>Presencia territorial de JET en Guatemala</title></svg><p class="territory-map-error" id="territory-map-error" hidden>El mapa no pudo cargar. Explora los territorios en la lista.</p></div>
     <div class="territory-detail">
-      <label class="territory-select-label" for="territory-select">Explora un departamento</label>
+      <label class="territory-select-label" for="territory-select">Explora un territorio</label>
       <select id="territory-select" class="territory-select"><option value="Petén">Petén</option></select>
-      <div class="territory-detail-body" id="territory-detail-body" aria-live="polite" aria-atomic="true">
-        <p class="territory-department-total"><strong id="territory-department-total">4</strong><span id="territory-department-label">participaciones en Petén</span></p>
-        <ul class="territory-interests" id="territory-interests"></ul>
-      </div>
-      <p class="territory-privacy">Solo mostramos conteos por departamento. Tu nombre y correo no aparecen en el mapa.</p>
+      <div class="territory-detail-body" aria-live="polite" aria-atomic="true"><h4 id="territory-department-name">Petén</h4><p id="territory-presence-message">JET tiene presencia aquí</p></div>
+      <p class="territory-legend"><span aria-hidden="true"></span>Presencia de JET</p>
+      <p class="territory-privacy">Vista general de la red, sin datos individuales.</p>
     </div>
   </div>
   <p class="territory-attribution">Mapa: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a> / <a href="https://www.geoboundaries.org/api/current/gbOpen/GTM/ADM1/" target="_blank" rel="noopener noreferrer">geoBoundaries</a> · <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener noreferrer">ODbL</a></p>

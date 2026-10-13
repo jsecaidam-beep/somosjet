@@ -1,7 +1,7 @@
 /**
- * JET v2 — confirmed signup and anonymous department totals.
+ * JET — confirmed signup; no participant statistics are public.
  * Bound to Suscriptores Newsletter / Sheet1. Preserve existing columns A:D.
- * GET is read-only; never return names, emails, messages or exact locations.
+ * GET is read-only; return only the receipt for one random request ID.
  */
 var JET_PROTOCOL = 'jet-v2';
 var JET_DEPARTMENTS = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progreso','Escuintla','Guatemala','Huehuetenango','Izabal','Jalapa','Jutiapa','Petén','Quetzaltenango','Quiché','Retalhuleu','Sacatepéquez','San Marcos','Santa Rosa','Sololá','Suchitepéquez','Totonicapán','Zacapa'];
@@ -56,7 +56,7 @@ function doGet(e) {
       var error = row ? null : CacheService.getScriptCache().get('jet-error-' + id);
       result = row ? jetReceipt_(sheet,row,id) : {protocol:JET_PROTOCOL,result:error ? 'error' : 'pending',requestId:id,message:error || ''};
     } else if (p.action === 'territories' || !p.action) {
-      result = {protocol:JET_PROTOCOL,result:'success',stats:jetStats_(sheet)};
+      result = {protocol:JET_PROTOCOL,result:'ready'};
     } else {
       throw new Error('invalid');
     }
@@ -91,25 +91,7 @@ function jetFindRequest_(sheet,id) {
   return cell ? cell.getRow() : null;
 }
 function jetReceipt_(sheet,row,id) {
-  return {protocol:JET_PROTOCOL,result:'success',requestId:id,department:jetDepartment_(sheet.getRange(row,9).getValue()),interest:JET_INTERESTS[sheet.getRange(row,5).getValue()] || 'info',stats:jetStats_(sheet)};
-}
-function jetStats_(sheet) {
-  var count = sheet.getLastRow()-1;
-  var departments = {};
-  if (count > 0) {
-    var locations = sheet.getRange(2,4,count,2).getValues();
-    var canonical = sheet.getRange(2,9,count,1).getValues();
-    for (var i=0;i<count;i++) {
-      var department = jetDepartment_(canonical[i][0] || locations[i][0]);
-      if (!department) continue;
-      var interest = JET_INTERESTS[locations[i][1]] || 'info';
-      if (!departments[department]) departments[department] = {department:department,total:0,interests:{member:0,organization:0,donor:0,info:0}};
-      departments[department].total++;
-      departments[department].interests[interest]++;
-    }
-  }
-  var territories = Object.keys(departments).sort().map(function(name){return departments[name];});
-  return {mode:'live',territories:territories,total:territories.reduce(function(sum,t){return sum+t.total;},0)};
+  return {protocol:JET_PROTOCOL,result:'success',requestId:id,department:jetDepartment_(sheet.getRange(row,9).getValue())};
 }
 function jetDepartment_(value) {
   var text = jetString_(value,180).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z\s]/g,' ').replace(/\s+/g,' ').trim();

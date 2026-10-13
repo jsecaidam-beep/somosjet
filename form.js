@@ -17,8 +17,7 @@
   let lastAttempt = null;
   let disabledFields = [];
   let glintTimer;
-  let queuedStats = null;
-  let queuedPreview = false;
+  let queuedDepartment = null;
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   function message(text, isError = false) {
@@ -45,34 +44,19 @@
     form.classList.toggle('is-submitting', value);
   }
 
-  function usableStats(stats) {
-    return !!stats && stats.mode === 'live' && Array.isArray(stats.territories);
+  function highlightDepartment(department) {
+    if (typeof department !== 'string' || !department.trim()) return;
+    if (window.JETTerritory && typeof window.JETTerritory.highlightDepartment === 'function') {
+      window.JETTerritory.highlightDepartment(department);
+      queuedDepartment = null;
+    } else queuedDepartment = department;
   }
 
-  function updateMap(stats) {
-    if (!usableStats(stats)) return;
-    queuedPreview = false;
-    if (window.JETTerritory && typeof window.JETTerritory.setData === 'function') {
-      window.JETTerritory.setData(stats);
-      queuedStats = null;
-    } else queuedStats = stats;
+  function applyQueuedHighlight() {
+    if (queuedDepartment) highlightDepartment(queuedDepartment);
   }
-
-  function prepareMap(stats) {
-    if (!usableStats(stats)) return;
-    if (window.JETTerritory && typeof window.JETTerritory.prepareLiveData === 'function') {
-      window.JETTerritory.prepareLiveData(stats);
-      queuedStats = null;
-    } else { queuedStats = stats; queuedPreview = true; }
-  }
-  function applyQueuedStats() {
-    if (queuedStats) {
-      if (queuedPreview) prepareMap(queuedStats);
-      else updateMap(queuedStats);
-    }
-  }
-  document.addEventListener('DOMContentLoaded', applyQueuedStats, {once:true});
-  window.addEventListener('jet:territory-ready', applyQueuedStats);
+  document.addEventListener('DOMContentLoaded', applyQueuedHighlight, {once:true});
+  window.addEventListener('jet:territory-ready', applyQueuedHighlight);
 
   function requestJSONP(parameters, timeout = 7500) {
     return new Promise((resolve, reject) => {
@@ -163,14 +147,14 @@
   }
 
   function showSuccess(receipt) {
-    if (usableStats(receipt.stats)) updateMap(receipt.stats);
+    // Focus the person's chosen territory without changing JET's official
+    // presence or publishing any registration data on the map.
+    highlightDepartment(receipt.department);
     if (fields) fields.hidden = true;
     if (status) status.hidden = true;
     form.classList.add('is-success');
     if (success) {
       success.hidden = false;
-      const title = success.querySelector('[data-success-title]');
-      if (title) title.textContent = 'Gracias por enviar tu energía.';
       success.focus({preventScroll:true});
       success.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'nearest'});
     }
@@ -236,9 +220,4 @@
     if (first) first.focus();
   });
 
-  // Keep the 18-example illustration distinct from the live aggregate.
-  // A confirmed signup switches the map to real registrations.
-  requestJSONP({action:'territories'}).then(response => {
-    if (response && response.protocol === 'jet-v2' && response.result === 'success' && usableStats(response.stats)) prepareMap(response.stats);
-  }).catch(() => {});
 })();

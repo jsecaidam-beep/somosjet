@@ -11,11 +11,11 @@ Publicado en https://somosjet.me mediante GitHub Pages desde la raíz de `main`.
 - `app.js`: menú, entradas y escena de Liquid Glass.
 - `posts.js`: filtros y navegación de los ocho carruseles (66 imágenes) y el reel.
 - `form.js`: envío al receptor de Google Apps Script y confirmación del guardado dentro de la landing.
-- `territory.js`, `territory.css`: mapa SVG de departamentos y vistas separadas de ejemplo / registros reales.
+- `territory.js`, `territory.css`: mapa SVG con la presencia territorial oficial de JET.
 - `icons.css`, `assets/icons.svg`: iconos vectoriales locales de Lucide, sin emojis.
 - `assets/`: fuentes, logo, valores vectoriales, biblioteca LiquidGlass y fotografías.
 - `google-apps-script.js`: fuente del receptor JET v2; se despliega por separado en Apps Script.
-- `tests/`: pruebas de confirmación, errores, reintentos y separación de datos del mapa.
+- `tests/`: pruebas de confirmación, errores, reintentos y presencia oficial del mapa.
 
 ## Vista local
 
@@ -34,8 +34,9 @@ Los reintentos conservan los datos y el UUID. El agradecimiento y los brillos SV
 aparecen únicamente al confirmar el registro.
 
 La hoja conserva sus columnas A:D y agrega E:I para interés, mensaje, consentimiento,
-ID de registro y departamento. Las consultas públicas devuelven solo conteos
-agregados por departamento/categoría, nunca nombres, correos o mensajes.
+ID de registro y departamento. La consulta pública devuelve únicamente la confirmación del intento mediante su
+UUID aleatorio y el departamento de ese intento; no publica cifras de participantes,
+categorías, nombres, correos ni mensajes.
 
 Para actualizar el receptor, editar Code.gs en el proyecto vinculado a la hoja y
 actualizar la implementación existente a una nueva versión. Publicar este archivo
@@ -44,11 +45,14 @@ conservó; JET v2 está activo desde el 12 de octubre de 2026.
 
 ## Mapa
 
-La vista inicial es un ejemplo explícito de 18 participaciones en Petén, Escuintla,
-Guatemala, Sacatepéquez y Quetzaltenango. Sus datos nunca se escriben en la hoja.
-El chip «Registros reales» permite consultar la red guardada; una inscripción
-confirmada cambia automáticamente a esa vista. Los ejemplos nunca se suman a los
-registros reales. Los puntos representan departamentos, sin ubicación individual.
+El mapa marca en fucsia los territorios de presencia indicados por JET: Petén,
+Chiquimula, Jalapa, Izabal (incluye Puerto Barrios), Huehuetenango, Suchitepéquez,
+Retalhuleu, Sololá, Sacatepéquez, Guatemala, Jutiapa, El Progreso y Quetzaltenango.
+
+Muestra solo los nombres de departamentos y la presencia de JET. No contiene
+contadores, datos de ejemplo ni puntos individuales. Un registro confirmado
+puede animar una región ya presente; registrarse desde otro departamento no
+modifica la presencia oficial de JET.
 
 La geometría local de los 22 departamentos procede de geoBoundaries / William & Mary
 con origen OpenStreetMap (ODbL); la atribución se conserva en el mapa y en el JSON.
@@ -57,7 +61,9 @@ con origen OpenStreetMap (ODbL); la atribución se conserva en el mapa y en el J
 
 `node --test tests/signup-backend.test.cjs` comprueba guardado, idempotencia,
 validación, privacidad y errores. `node tests/signup-client.test.cjs` comprueba que
-solo un recibo guardado confirma el envío, los reintentos y los modos del mapa.
+solo un recibo guardado confirma el envío, los reintentos y la confirmación en la landing.
+`node --test tests/territory-presence.test.cjs` comprueba la presencia oficial y
+que las inscripciones no amplían automáticamente el mapa.
 También se verificó el flujo real con registros temporales retirados tras la prueba.
 
 ## Diseño y fuentes

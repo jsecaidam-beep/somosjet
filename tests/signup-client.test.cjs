@@ -33,7 +33,7 @@ function element() {
 function fixture(responses, options = {}) {
   let clock = 0;
   let context;
-  const posts = [], queries = [], updates = [], prepared = [], documentListeners = {}, windowListeners = {};
+  const posts = [], queries = [], highlights = [], documentListeners = {}, windowListeners = {};
   const values = {
     name:'Persona de prueba', email:'prueba@example.test', location:'Antigua Guatemala',
     department:'Sacatepéquez', interest:'Quiero ser parte de JET', consent:'yes', message:'', website:''
@@ -48,6 +48,7 @@ function fixture(responses, options = {}) {
   fields.querySelectorAll = () => [first];
   success.hidden = true;
   label.textContent = 'Enviar mi energía';
+  title.textContent = 'Mensaje de confirmación definido en HTML';
   success.querySelector = () => title;
   const nodes = {
     '#signup-form':form, '#signup-fields':fields, '#form-status':status, '#form-success':success,
@@ -63,9 +64,8 @@ function fixture(responses, options = {}) {
       const callback = url.searchParams.get('callback');
       queueMicrotask(() => {
         const action = url.searchParams.get('action');
-        const response = action === 'territories'
-          ? options.bootstrap || {protocol:'jet-v2', result:'success', stats:{mode:'live', territories:options.stats || []}}
-          : responses.shift() || options.defaultStatus || {protocol:'jet-v2', result:'pending'};
+        assert.equal(action, 'status', 'the form must never request public registration aggregates');
+        const response = responses.shift() || options.defaultStatus || {protocol:'jet-v2', result:'pending'};
         if (response.__timeout) return;
         if (response.__networkError) { script.onerror(); return; }
         const reply = {...response};
@@ -117,45 +117,50 @@ function fixture(responses, options = {}) {
   const territory = context.window.JETTerritory;
   const wrapMap = () => ({
     ...territory,
-    setData(data) { updates.push(data); return territory.setData(data); },
-    prepareLiveData(data) { prepared.push(data); return territory.prepareLiveData(data); }
+    highlightDepartment(department) { highlights.push(department); return territory.highlightDepartment(department); }
   });
   context.window.JETTerritory = options.lateMap ? undefined : wrapMap();
   vm.runInContext(source, context, {filename:'form.js'});
   let prevented = 0;
   return {
     submit:() => form.listeners.submit({preventDefault() { prevented += 1; }}),
-    values, posts, queries, updates, prepared, form, fields, status, success, celebration, again, button, title, first,
+    values, posts, queries, highlights, form, fields, status, success, celebration, again, button, title, first,
     prevented:() => prevented,
     snapshot:() => JSON.parse(JSON.stringify(territory.getSnapshot())),
-    showMode:mode => territory.showMode(mode),
     readyMap() { context.window.JETTerritory = wrapMap(); windowListeners['jet:territory-ready'](); },
     clear() { timers.forEach(clearTimeout); timers.clear(); }
   };
 }
 
-const total = snapshot => snapshot.territories.reduce((sum, row) => sum + row.total, 0);
-const receipt = () => ({
-  protocol:'jet-v2', result:'success', department:'Petén', interest:'Quiero ser parte de JET',
-  stats:{mode:'live', territories:[{department:'Petén', total:1, interests:{member:1}}]}
-});
+const receipt = department => ({protocol:'jet-v2', result:'success', department:department || 'Sacatepéquez'});
 const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
 
 (async () => {
+  const initial = fixture([]);
+  const officialPresence = initial.snapshot().presence;
+  assert.equal(officialPresence.length, 13);
+  assert.deepEqual(Object.keys(initial.snapshot()).sort(), ['presence','selected']);
+  await flush();
+  assert.equal(initial.queries.length, 0, 'loading the form never requests public registration data');
+  assert.equal(initial.posts.length, 0);
+  assert.equal(initial.highlights.length, 0);
+  initial.clear();
+
   const f = fixture([{protocol:'jet-v2', result:'pending'}, receipt()]);
   await f.submit();
   assert.equal(f.success.hidden, false);
   assert.equal(f.fields.hidden, true);
   assert.equal(f.success.focused, true);
-  assert.equal(f.title.textContent, 'Gracias por enviar tu energía.');
-  assert.equal(f.updates.length, 1);
-  assert.equal(f.snapshot().mode, 'live');
-  assert.equal(total(f.snapshot()), 1, 'success replaces the 18 demo dots rather than adding to them');
+  assert.equal(f.title.textContent, 'Mensaje de confirmación definido en HTML', 'the HTML owns the thank-you wording');
+  assert.deepEqual(f.highlights, ['Sacatepéquez']);
+  assert.equal(f.snapshot().selected, 'Sacatepéquez');
+  assert.deepEqual(f.snapshot().presence, officialPresence, 'registration never changes official presence');
   assert.equal(f.form.attrs['aria-busy'], 'false');
   assert.equal(f.posts[0].get('department'), 'Sacatepéquez');
   assert.equal(f.prevented(), 1, 'native submission/navigation is prevented');
-  for (const url of f.queries) for (const key of url.searchParams.keys()) {
-    assert(['action','requestId','callback','_'].includes(key), 'JSONP URL contains only receipt/control parameters');
+  for (const url of f.queries) {
+    assert.equal(url.searchParams.get('action'), 'status');
+    for (const key of url.searchParams.keys()) assert(['action','requestId','callback','_'].includes(key));
   }
   assert(!f.queries.some(url => url.href.includes('prueba') || url.href.includes('Sacate')));
   assert.equal(f.celebration.children.length, 0, 'reduced-motion avoids transient sparkle animation');
@@ -163,6 +168,7 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
   assert.equal(f.fields.hidden, false);
   assert.equal(f.success.hidden, true);
   assert.equal(f.first.focused, true);
+  assert.deepEqual(f.snapshot().presence, officialPresence);
   f.clear();
 
   const retry = fixture([{protocol:'jet-v2', result:'error'}, receipt()]);
@@ -170,18 +176,19 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
   assert.equal(retry.success.hidden, true);
   assert.equal(retry.values.email, 'prueba@example.test');
   assert.equal(retry.status.attrs.role, 'alert');
-  assert.equal(retry.updates.length, 0);
-  assert.equal(total(retry.snapshot()), 18);
+  assert.equal(retry.highlights.length, 0);
+  assert.deepEqual(retry.snapshot().presence, officialPresence);
   await retry.submit();
   assert.equal(retry.posts[0].get('requestId'), retry.posts[1].get('requestId'), 'server error retry reuses the same UUID');
   assert.equal(retry.success.hidden, false);
   retry.clear();
 
-  const changed = fixture([{protocol:'jet-v2', result:'error'}, receipt()]);
+  const changed = fixture([{protocol:'jet-v2', result:'error'}, receipt('Petén')]);
   await changed.submit();
   changed.values.department = 'Petén';
   await changed.submit();
   assert.notEqual(changed.posts[0].get('requestId'), changed.posts[1].get('requestId'), 'changed payload gets its own UUID');
+  assert.deepEqual(changed.snapshot().presence, officialPresence);
   changed.clear();
 
   const wrong = fixture([{protocol:'legacy', result:'success'}]);
@@ -189,19 +196,20 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
   assert.equal(wrong.success.hidden, true);
   assert.match(wrong.status.textContent, /actualización/);
   assert.equal(wrong.values.email, 'prueba@example.test');
-  assert.equal(wrong.updates.length, 0);
+  assert.equal(wrong.highlights.length, 0);
   wrong.clear();
 
   const pendingResponses = [];
   const pending = fixture(pendingResponses);
   await pending.submit();
   assert.equal(pending.success.hidden, true, 'opaque POST with only pending receipts cannot show success');
-  assert.equal(pending.updates.length, 0);
+  assert.equal(pending.highlights.length, 0);
   assert.match(pending.status.textContent, /Todavía no pudimos confirmar/);
   pendingResponses.push(receipt());
   await pending.submit();
   assert.equal(pending.posts[0].get('requestId'), pending.posts[1].get('requestId'), 'pending timeout retry reuses the UUID');
   assert.equal(pending.success.hidden, false);
+  assert.deepEqual(pending.snapshot().presence, officialPresence);
   pending.clear();
 
   const timeoutResponses = [];
@@ -211,8 +219,7 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
   assert.equal(timeout.values.email, 'prueba@example.test');
   assert.match(timeout.status.textContent, /Todavía no pudimos confirmar/);
   assert.equal(timeout.button.disabled, false);
-  assert.equal(timeout.updates.length, 0);
-  assert.equal(timeout.snapshot().mode, 'demo');
+  assert.equal(timeout.highlights.length, 0);
   timeoutResponses.push(receipt());
   await timeout.submit();
   assert.equal(timeout.posts[0].get('requestId'), timeout.posts[1].get('requestId'), 'JSONP timeout retry reuses the UUID');
@@ -228,52 +235,38 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
   const mismatched = fixture([{...receipt(), requestId:'another-registration'}]);
   await mismatched.submit();
   assert.equal(mismatched.success.hidden, true, 'a receipt belonging to another UUID cannot confirm this form');
-  assert.equal(mismatched.updates.length, 0);
+  assert.equal(mismatched.highlights.length, 0);
   mismatched.clear();
 
   const interrupted = fixture([receipt()], {fetchError:true});
   await interrupted.submit();
   assert.equal(interrupted.success.hidden, false, 'interrupted POST response is recovered only through its saved receipt');
+  assert.deepEqual(interrupted.snapshot().presence, officialPresence);
   interrupted.clear();
 
-  const live = fixture([], {stats:[{department:'Escuintla', total:2, interests:{member:1, donor:1}}]});
-  await flush();
-  assert.equal(live.prepared.length, 1, 'bootstrap prepares the real aggregate');
-  assert.equal(live.updates.length, 0, 'bootstrap never switches the view through setData');
-  assert.equal(live.snapshot().mode, 'demo');
-  assert.equal(total(live.snapshot()), 18, 'bootstrap retains the illustrative 18 participations');
-  assert.equal(live.showMode('live'), true);
-  assert.equal(live.snapshot().mode, 'live');
-  assert.equal(total(live.snapshot()), 2, 'real-data mode contains only the cached actual aggregate');
-  assert.equal(live.showMode('demo'), true);
-  assert.equal(total(live.snapshot()), 18, 'illustration remains available independently');
-  live.clear();
-
-  const empty = fixture([]);
-  await flush();
-  assert.equal(empty.prepared.length, 1, 'an empty valid live response is prepared too');
-  assert.equal(empty.updates.length, 0);
-  assert.equal(total(empty.snapshot()), 18);
-  empty.showMode('live');
-  assert.equal(total(empty.snapshot()), 0, 'empty real-data mode must not contain the demo dots');
-  empty.clear();
-
-  const late = fixture([], {lateMap:true, stats:[{department:'Petén', total:3, interests:{member:3}}]});
-  await flush();
-  assert.equal(late.prepared.length, 0);
+  const late = fixture([receipt()], {lateMap:true});
+  await late.submit();
+  assert.equal(late.success.hidden, false);
+  assert.equal(late.highlights.length, 0);
   late.readyMap();
-  assert.equal(late.prepared.length, 1, 'late initialization applies the queued bootstrap as prepared data');
-  assert.equal(late.updates.length, 0);
-  assert.equal(total(late.snapshot()), 18);
-  late.showMode('live');
-  assert.equal(total(late.snapshot()), 3);
+  assert.deepEqual(late.highlights, ['Sacatepéquez'], 'late map initialization applies only the confirmed department highlight');
+  assert.deepEqual(late.snapshot().presence, officialPresence);
   late.clear();
 
-  const bootstrapFailure = fixture([receipt()], {bootstrap:{__networkError:true}});
-  await bootstrapFailure.submit();
-  assert.equal(bootstrapFailure.prepared.length, 0);
-  assert.equal(bootstrapFailure.success.hidden, false, 'bootstrap failure does not block registrations');
-  bootstrapFailure.clear();
+  const outside = fixture([receipt('Escuintla')]);
+  await outside.submit();
+  assert.equal(outside.success.hidden, false);
+  assert.deepEqual(outside.highlights, ['Escuintla']);
+  assert.deepEqual(outside.snapshot().presence, officialPresence, 'registering outside official presence cannot add a marked department');
+  assert.equal(outside.snapshot().selected, 'Petén', 'unofficial territory does not change the map selection');
+  outside.clear();
+
+  const noDepartment = fixture([{protocol:'jet-v2', result:'success'}]);
+  await noDepartment.submit();
+  assert.equal(noDepartment.success.hidden, false);
+  assert.equal(noDepartment.highlights.length, 0);
+  assert.deepEqual(noDepartment.snapshot().presence, officialPresence);
+  noDepartment.clear();
 
   const double = fixture([{protocol:'jet-v2', result:'pending'}, receipt()]);
   const inProgress = double.submit();
@@ -289,6 +282,6 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
   sparkle.clear();
 
   console.log('PASS signup client: saved receipts only; pending/error/legacy/mismatched/JSONP-timeout handling; same-ID retries; no PII in URLs; no native navigation; busy guard; accessible success/reset; SVG sparkles and reduced motion.');
-  console.log('PASS map integration: bootstrap prepares live data while retaining 18 demo dots; demo/live remain separate; empty live data contains zero demo dots; late map initialization retains the correct mode; successful signup switches to the real aggregate.');
+  console.log('PASS map privacy integration: no aggregate request or bootstrap; success only highlights its department; official presence remains unchanged; late initialization applies the confirmed highlight; registrations outside official presence never add a map zone.');
   console.log('No real requests or registrations were sent.');
 })().catch(error => { console.error(error); process.exit(1); });
