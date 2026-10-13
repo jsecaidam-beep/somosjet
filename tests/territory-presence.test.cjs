@@ -7,7 +7,7 @@ const vm = require('node:vm');
 const directory = path.join(__dirname,'..');
 const source = fs.readFileSync(path.join(directory,'territory.js'),'utf8');
 const geography = JSON.parse(fs.readFileSync(path.join(directory,'assets','guatemala-departments.json'),'utf8'));
-const official = ['Petén','Chiquimula','Jalapa','Izabal','Huehuetenango','Suchitepéquez','Retalhuleu','Sololá','Sacatepéquez','Guatemala','Jutiapa','El Progreso','Quetzaltenango'];
+const official = ['Petén','Chiquimula','Jalapa','Izabal','Huehuetenango','Suchitepéquez','Retalhuleu','Sololá','Sacatepéquez','Guatemala','Jutiapa','El Progreso','Quetzaltenango','Escuintla','Santa Rosa'];
 
 class Element {
   constructor() {
@@ -69,8 +69,8 @@ test('click, hover, keyboard and list expose only the territory and presence mes
   const env=await boot();
   const chiquimula=env.regions.find(region=>region.dataset.department==='Chiquimula');
   chiquimula.fire('click');assert.equal(env.name.textContent,'Chiquimula');assert.equal(env.message.textContent,'JET tiene presencia aquí');
-  const escuintla=env.regions.find(region=>region.dataset.department==='Escuintla');
-  escuintla.fire('pointerenter');assert.equal(env.name.textContent,'Escuintla');assert.equal(env.message.textContent,'Sigamos conectando territorios');
+  const zacapa=env.regions.find(region=>region.dataset.department==='Zacapa');
+  zacapa.fire('pointerenter');assert.equal(env.name.textContent,'Zacapa');assert.equal(env.message.textContent,'Sigamos conectando territorios');
   let prevented=false;
   chiquimula.fire('keydown',{key:'Enter',preventDefault(){prevented=true;}});
   assert.equal(prevented,true);assert.equal(env.snapshot().selected,'Chiquimula');
@@ -91,12 +91,26 @@ test('confirmation highlights official regions and recognizes place aliases',asy
 
 test('individual confirmations cannot expand official presence',async()=> {
   const env=await boot();const before=env.snapshot();
-  for(const department of ['Escuintla','Alta Verapaz','Narnia','',undefined]) {
+  for(const department of ['Zacapa','Alta Verapaz','Narnia','',undefined]) {
     assert.equal(env.api.highlightDepartment(department),false);
     assert.deepEqual(env.snapshot(),before);
   }
-  const snapshot=env.api.getSnapshot();snapshot.presence.push('Escuintla');snapshot.selected='Narnia';
+  const snapshot=env.api.getSnapshot();snapshot.presence.push('Zacapa');snapshot.selected='Narnia';
   assert.deepEqual(env.snapshot(),before);
+});
+
+test('Escuintla and Santa Rosa are fuchsia official presence and accept confirmation highlights',async()=> {
+  const env=await boot();
+  for(const department of ['Escuintla','Santa Rosa']) {
+    const region=env.regions.find(region=>region.dataset.department===department);
+    assert.equal(region.dataset.presence,'true');
+    assert.equal(env.api.highlightDepartment(department),true);
+    assert.equal(env.snapshot().selected,department);
+    assert.equal(env.message.textContent,'JET tiene presencia aquí');
+    assert.equal(region.classes.has('is-highlighted'),true);
+    assert.deepEqual(Object.keys(env.snapshot()).sort(),['presence','selected']);
+  }
+  assert.deepEqual(env.snapshot().presence,official);
 });
 
 test('fragment has no participant quantities, demo controls or category details',()=> {

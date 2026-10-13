@@ -138,7 +138,9 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
 (async () => {
   const initial = fixture([]);
   const officialPresence = initial.snapshot().presence;
-  assert.equal(officialPresence.length, 13);
+  assert.equal(officialPresence.length, 15);
+  assert(officialPresence.includes('Escuintla'));
+  assert(officialPresence.includes('Santa Rosa'));
   assert.deepEqual(Object.keys(initial.snapshot()).sort(), ['presence','selected']);
   await flush();
   assert.equal(initial.queries.length, 0, 'loading the form never requests public registration data');
@@ -253,10 +255,24 @@ const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
   assert.deepEqual(late.snapshot().presence, officialPresence);
   late.clear();
 
-  const outside = fixture([receipt('Escuintla')]);
+  for (const department of ['Escuintla','Santa Rosa']) {
+    const newlyIncluded = fixture([receipt(department)]);
+    newlyIncluded.values.department = department;
+    newlyIncluded.values.location = department;
+    await newlyIncluded.submit();
+    assert.equal(newlyIncluded.success.hidden, false);
+    assert.deepEqual(newlyIncluded.highlights, [department]);
+    assert.equal(newlyIncluded.snapshot().selected, department);
+    assert.deepEqual(newlyIncluded.snapshot().presence, officialPresence, 'confirmation highlights the official zone without adding people or totals');
+    assert.deepEqual(Object.keys(newlyIncluded.snapshot()).sort(), ['presence','selected']);
+    newlyIncluded.clear();
+  }
+
+  const outside = fixture([receipt('Alta Verapaz')]);
+  outside.values.department = 'Alta Verapaz';
   await outside.submit();
   assert.equal(outside.success.hidden, false);
-  assert.deepEqual(outside.highlights, ['Escuintla']);
+  assert.deepEqual(outside.highlights, ['Alta Verapaz']);
   assert.deepEqual(outside.snapshot().presence, officialPresence, 'registering outside official presence cannot add a marked department');
   assert.equal(outside.snapshot().selected, 'Petén', 'unofficial territory does not change the map selection');
   outside.clear();

@@ -12,6 +12,9 @@
   const button = form.querySelector('[type="submit"]');
   const buttonLabel = document.querySelector('#jet-submit-label') || form.querySelector('.jet-submit-label');
   const initialLabel = buttonLabel ? buttonLabel.textContent : 'Enviar mi energía';
+  const departmentField = form.querySelector('select[name="department"]');
+  const internationalFields = document.querySelector('#jet-international-fields');
+  const internationalControls = internationalFields ? Array.from(internationalFields.querySelectorAll('input')) : [];
   const endpoint = new URL(form.action, document.baseURI);
   let busy = false;
   let lastAttempt = null;
@@ -29,6 +32,21 @@
     status.classList.toggle('is-error', isError);
   }
 
+  function syncInternationalFields() {
+    const international = !!departmentField && departmentField.value === 'international';
+    if (internationalFields) internationalFields.hidden = !international;
+    internationalControls.forEach(control => {
+      // Disabling hidden controls removes them from native validation and POST.
+      // Their current values stay in the form when the person changes territory.
+      control.required = international;
+      control.disabled = !international || busy;
+    });
+  }
+  if (departmentField) departmentField.addEventListener('change', syncInternationalFields);
+  form.addEventListener('reset', () => queueMicrotask(syncInternationalFields));
+  window.addEventListener('pageshow', syncInternationalFields);
+  syncInternationalFields();
+
   function setBusy(value, label) {
     busy = value;
     form.setAttribute('aria-busy', String(value));
@@ -38,6 +56,7 @@
     } else {
       disabledFields.forEach(([control, wasDisabled]) => { control.disabled = wasDisabled; });
       disabledFields = [];
+      syncInternationalFields();
     }
     if (button) button.disabled = value;
     if (buttonLabel) buttonLabel.textContent = value ? (label || 'Enviando tu energía…') : initialLabel;
@@ -164,9 +183,11 @@
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (busy || form.classList.contains('is-success')) return;
+    syncInternationalFields();
     if (!form.reportValidity()) return;
     const body = new URLSearchParams();
     for (const [name, value] of new FormData(form)) {
+      if ((name === 'country' || name === 'region') && (!departmentField || departmentField.value !== 'international')) continue;
       if (typeof value === 'string' && name !== 'requestId') body.append(name, value);
     }
     body.set('website', body.get('website') || '');
@@ -209,6 +230,7 @@
   if (again) again.addEventListener('click', () => {
     if (!form.classList.contains('is-success') || busy) return;
     form.reset();
+    syncInternationalFields();
     lastAttempt = null;
     form.classList.remove('is-success');
     if (success) success.hidden = true;

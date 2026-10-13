@@ -3,7 +3,7 @@
   'use strict';
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const DEPARTMENTS = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progreso','Escuintla','Guatemala','Huehuetenango','Izabal','Jalapa','Jutiapa','Petén','Quetzaltenango','Quiché','Retalhuleu','Sacatepéquez','San Marcos','Santa Rosa','Sololá','Suchitepéquez','Totonicapán','Zacapa'];
-  const PRESENCE = Object.freeze(['Petén','Chiquimula','Jalapa','Izabal','Huehuetenango','Suchitepéquez','Retalhuleu','Sololá','Sacatepéquez','Guatemala','Jutiapa','El Progreso','Quetzaltenango']);
+  const PRESENCE = Object.freeze(['Petén','Chiquimula','Jalapa','Izabal','Huehuetenango','Suchitepéquez','Retalhuleu','Sololá','Sacatepéquez','Guatemala','Jutiapa','El Progreso','Quetzaltenango','Escuintla','Santa Rosa']);
   const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
   const canonicalDepartment = value => {
     const normalized = normalize(value).replace(/^departamento de /,'');

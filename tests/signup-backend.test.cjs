@@ -65,7 +65,7 @@ test('new signup is stored before success and preserves historical columns',() =
   assert.equal(receipt.department,'Petén');
   assert.equal('interest' in receipt,false);
   assert.deepEqual(env.rows[0].slice(0,4),HISTORICAL_HEADERS);
-  assert.deepEqual(env.rows[0].slice(4),['Interés','Mensaje','Consentimiento','ID de registro','Departamento']);
+  assert.deepEqual(env.rows[0].slice(4),['Interés','Mensaje','Consentimiento','ID de registro','Departamento','País','Estado/departamento internacional']);
   assert.equal(env.rows.length,2);
   assert.equal(env.rows[1][3],'Petén · Flores');
   assert.equal(env.rows[1][7],ID);
@@ -189,4 +189,43 @@ test('empty workbook receives headers and exactly one registration',() => {
   assert.equal(env.rows.length,2);
   assert.equal(env.rows[0][0],'Fecha');
   assert.equal(env.rows[0][8],'Departamento');
+});
+
+
+test('international registration stores country and region without marking Guatemala',() => {
+  const env=environment();
+  const receipt=env.post(valid({department:'international',country:'México',region:'Guatemala',location:'Ciudad de México'}));
+  assert.equal(receipt.result,'success');
+  assert.equal(receipt.department,'');
+  assert.equal(env.rows[1][3],'México · Guatemala · Ciudad de México');
+  assert.equal(env.rows[1][8],'');
+  assert.equal(env.rows[1][9],'México');
+  assert.equal(env.rows[1][10],'Guatemala');
+  const confirmation=env.get({action:'status',requestId:ID});
+  assert.equal(confirmation.department,'');
+  assert.deepEqual(Object.keys(confirmation).sort(),['department','protocol','requestId','result']);
+  assert.equal(JSON.stringify(confirmation).includes('México'),false);
+  assert.equal(env.post(valid({department:'international',country:'México',region:'Guatemala',location:'Ciudad de México'})).result,'success');
+  assert.equal(env.rows.length,2);
+});
+
+test('international registrations require country and region and escape sheet formulas',() => {
+  for(const overrides of [{country:'',region:'California'},{country:'Estados Unidos',region:''},{country:'  ',region:'  '}]) {
+    const env=environment();
+    assert.equal(env.post(valid({department:'international',...overrides})).result,'error');
+    assert.equal(env.rows.length,1);
+  }
+  const env=environment();
+  assert.equal(env.post(valid({department:'international',country:'=Mexico',region:'@Estado'})).result,'success');
+  assert.equal(env.rows[1][9],"'=Mexico");
+  assert.equal(env.rows[1][10],"'@Estado");
+});
+
+test('domestic registration ignores stale foreign fields',() => {
+  const env=environment();
+  assert.equal(env.post(valid({department:'Santa Rosa',country:'México',region:'Oaxaca',location:'Cuilapa'})).result,'success');
+  assert.equal(env.rows[1][3],'Santa Rosa · Cuilapa');
+  assert.equal(env.rows[1][8],'Santa Rosa');
+  assert.equal(env.rows[1][9],'Guatemala');
+  assert.equal(env.rows[1][10],'');
 });

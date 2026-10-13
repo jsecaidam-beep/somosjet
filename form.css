@@ -78,3 +78,23 @@
 .jet-honeypot{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;pointer-events:none}
 #signup-fields[hidden]{display:none}
 @media(max-width:500px){.jet-field select{font-size:16px}}
+
+/* International participation stays in the same form and glass layout. */
+.jet-international-fields{display:grid;grid-template-columns:1fr 1fr;gap:17px 14px}
+.jet-international-fields[hidden]{display:none!important}
+.jet-choice .jet-choice-check{opacity:0}
+.jet-choice>input:checked+span .jet-choice-check{opacity:1}
+@media(max-width:600px){.jet-international-fields{grid-template-columns:1fr;gap:16px}}
+
+/* Follow-up links appear only after a confirmed registration. */
+#form-success .signup-social-follow{position:relative;z-index:1;width:100%;max-width:410px;padding:20px 18px;border:1px solid #ffffffb8;border-radius:22px;background:linear-gradient(145deg,#ffffff52,#ffffff24);box-shadow:inset 0 1px 0 #ffffffb0}
+#form-success .signup-social-follow h4{font:700 20px/1.2 'Space Grotesk',sans-serif;letter-spacing:-.035em;margin:0 0 8px;max-width:none}
+#form-success .signup-social-follow p{font-size:12px;line-height:1.5;margin:0 auto 16px}
+.signup-social-links{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.signup-social-link{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px;padding:14px 16px;border-radius:15px;font-size:13px;font-weight:700;line-height:1.25;transition:transform .2s,background .2s,box-shadow .2s}
+.signup-social-link .jet-icon{width:19px;height:19px;flex-shrink:0}
+.signup-social-link:hover{transform:translateY(-2px);background:#ffffffe0;box-shadow:inset 0 1px 0 #fff,0 7px 20px #40388d17}
+.signup-social-link:focus-visible{outline:3px solid var(--purple);outline-offset:4px}
+@media(max-width:500px){#form-success .signup-social-follow{padding:18px 14px}#form-success .signup-social-follow h4{font-size:19px}.signup-social-link{padding:13px 12px;gap:8px;font-size:12px}.signup-social-links{gap:8px}}
+@media(max-width:340px){.signup-social-links{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.signup-social-link{transition:none}.signup-social-link:hover{transform:none}}

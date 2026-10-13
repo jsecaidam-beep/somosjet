@@ -24,30 +24,36 @@ Ejecutar `python3 -m http.server 8765` desde esta carpeta y abrir http://127.0.0
 ## Formulario
 
 Se conservan nombre, correo, municipio opcional, cuatro intereses y consentimiento;
-el departamento es una selección de los 22 departamentos de Guatemala.
+el departamento es una selección de los 22 departamentos de Guatemala. La opción
+«No soy de Guatemala» muestra país y estado/departamento obligatorios. Los campos
+extranjeros se desactivan al volver a elegir un departamento guatemalteco.
 
 El envío POST ocurre en segundo plano. Su respuesta opaca no se considera una
 confirmación: la landing consulta un comprobante de guardado mediante GET JSONP
 con un UUID aleatorio. El receptor valida los datos, bloquea escrituras concurrentes,
 evita duplicados del mismo intento y responde solo después de guardar la fila.
 Los reintentos conservan los datos y el UUID. El agradecimiento y los brillos SVG
-aparecen únicamente al confirmar el registro.
+aparecen únicamente al confirmar el registro. La tarjeta de agradecimiento incluye
+enlaces a Instagram y Facebook de JET para seguir el movimiento.
 
 La hoja conserva sus columnas A:D y agrega E:I para interés, mensaje, consentimiento,
-ID de registro y departamento. La consulta pública devuelve únicamente la confirmación del intento mediante su
+ID de registro y departamento. Las columnas J:K guardan país y estado/departamento
+internacional; el departamento de Guatemala queda vacío en los registros de otro país. La consulta pública devuelve únicamente la confirmación del intento mediante su
 UUID aleatorio y el departamento de ese intento; no publica cifras de participantes,
 categorías, nombres, correos ni mensajes.
 
 Para actualizar el receptor, editar Code.gs en el proyecto vinculado a la hoja y
 actualizar la implementación existente a una nueva versión. Publicar este archivo
 en GitHub Pages no cambia automáticamente Apps Script. La URL del receptor se
-conservó; JET v2 está activo desde el 12 de octubre de 2026.
+conservó; la versión 4 del receptor admite registros internacionales desde el
+13 de octubre de 2026. El protocolo jet-v2 conserva la compatibilidad con la landing
+anterior durante la publicación.
 
 ## Mapa
 
 El mapa marca en fucsia los territorios de presencia indicados por JET: Petén,
 Chiquimula, Jalapa, Izabal (incluye Puerto Barrios), Huehuetenango, Suchitepéquez,
-Retalhuleu, Sololá, Sacatepéquez, Guatemala, Jutiapa, El Progreso y Quetzaltenango.
+Retalhuleu, Sololá, Sacatepéquez, Guatemala, Jutiapa, El Progreso, Quetzaltenango, Escuintla y Santa Rosa.
 
 Muestra solo los nombres de departamentos y la presencia de JET. No contiene
 contadores, datos de ejemplo ni puntos individuales. Un registro confirmado

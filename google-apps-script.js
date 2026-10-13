@@ -23,20 +23,23 @@ function doPost(e) {
     var name = jetString_(p.name, 150);
     var email = jetString_(p.email, 254);
     var location = jetString_(p.location, 180);
-    var department = jetDepartment_(p.department || location);
+    var international = p.department === 'international';
+    var country = international ? jetString_(p.country,100) : 'Guatemala';
+    var region = international ? jetString_(p.region,150) : '';
+    var department = international ? '' : jetDepartment_(p.department || location);
     var interest = jetString_(p.interest, 100);
-    if (p.website || !name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !JET_INTERESTS[interest] || p.consent !== 'yes' || (modern && !department)) throw new Error('invalid');
+    if (p.website || !name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !JET_INTERESTS[interest] || p.consent !== 'yes' || (modern && !international && !department) || (international && (!country || !region))) throw new Error('invalid');
     lock.waitLock(10000);
     var sheet = jetSheet_();
     var existing = jetFindRequest_(sheet, requestId);
     if (existing) return jetJson_(jetReceipt_(sheet, existing, requestId));
     jetHeaders_(sheet);
-    var locationText = department && location && location !== department ? department + ' · ' + location : department || location;
-    sheet.appendRow([new Date(),jetCell_(name),jetCell_(email),jetCell_(locationText),jetCell_(interest),jetCell_(jetString_(p.message,3000)),'Sí',requestId,department]);
+    var locationText = international ? [country,region,location].filter(function(value){return !!value;}).join(' · ') : department && location && location !== department ? department + ' · ' + location : department || location;
+    sheet.appendRow([new Date(),jetCell_(name),jetCell_(email),jetCell_(locationText),jetCell_(interest),jetCell_(jetString_(p.message,3000)),'Sí',requestId,department,jetCell_(country),jetCell_(region)]);
     SpreadsheetApp.flush();
     return jetJson_(jetReceipt_(sheet, sheet.getLastRow(), requestId));
   } catch (error) {
-    var message = error.message === 'invalid' ? 'Revisa tus datos y selecciona tu departamento.' : 'No pudimos guardar tu registro. Inténtalo nuevamente.';
+    var message = error.message === 'invalid' ? 'Revisa tus datos y completa tu país y estado/departamento cuando corresponda.' : 'No pudimos guardar tu registro. Inténtalo nuevamente.';
     if (jetValidId_(requestId)) CacheService.getScriptCache().put('jet-error-' + requestId, message, 120);
     return jetJson_({protocol:JET_PROTOCOL,result:'error',requestId:requestId,message:message});
   } finally {
@@ -77,10 +80,10 @@ function jetSheet_() {
   return sheet;
 }
 function jetHeaders_(sheet) {
-  var headers = ['Fecha','Nombre completo','Correo electrónico','Ubicación','Interés','Mensaje','Consentimiento','ID de registro','Departamento'];
+  var headers = ['Fecha','Nombre completo','Correo electrónico','Ubicación','Interés','Mensaje','Consentimiento','ID de registro','Departamento','País','Estado/departamento internacional'];
   if (!sheet.getLastRow()) sheet.appendRow(headers);
   else {
-    var cells = sheet.getRange(1,5,1,5).getValues()[0];
+    var cells = sheet.getRange(1,5,1,7).getValues()[0];
     for (var i=0;i<cells.length;i++) if (!cells[i]) sheet.getRange(1,i+5).setValue(headers[i+4]);
   }
 }
